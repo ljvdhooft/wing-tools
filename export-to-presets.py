@@ -4,12 +4,12 @@ from datetime import datetime
 import os
 
 
-def export_presets(dir, data, type):
-    os.makedirs(f"{dir}/{type}")
+def export_presets(dir, data, type, io=None):
+    os.makedirs(f"{dir}/{type}", exist_ok=True)
     for i in data:
         chn = data[i]
 
-        if not chn["name"]:
+        if "conn" in chn["in"] and chn["in"]["conn"]["grp"] == "OFF":
             continue
 
         # base preset
@@ -33,6 +33,16 @@ def export_presets(dir, data, type):
         preset["ch_data"] = chn
 
         file_name = f'{type}/{i.zfill(2)} - {chn["name"]}.{type}'
+        if 'clink' in chn and chn['clink'] and io:
+            ch_grp = chn['in']['conn']['grp']
+            ch_in = chn['in']['conn']['in']
+
+            if ch_grp in ["BUS", "MAIN", "MTX"]:
+                file_name = f'{type}/{i.zfill(2)}.{type}'
+            else:
+                io_in = io['in'][str(ch_grp)][str(ch_in)]
+                name = io_in['name']
+                file_name = f'{type}/{i.zfill(2)} - {name}.{type}'
         file_path = os.path.join(dir, file_name)
 
         # export the preset
@@ -55,6 +65,7 @@ os.makedirs(dir, exist_ok=True)
 with open(args.input) as f:
     snap = json.load(f)
 
+    io = snap['ae_data']['io']
     chs = snap['ae_data']['ch']
     auxes = snap['ae_data']['aux']
     buses = snap['ae_data']['bus']
@@ -63,43 +74,8 @@ with open(args.input) as f:
 
     dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # os.makedirs('presets/ch')
-    # for i in chs:
-    #     chn = chs[i]
-
-    #     if not chn['name']:
-    #         continue
-
-    #     # base preset
-    #     preset = {
-    #         "type": "chpreset.8",
-    #         "creator_fw": "2.0-0-g6617206f:release",
-    #         "creator_sn": "S220800180BV2",
-    #         "creator_model": "ngc-full",
-    #         "creator_version": "SX45-XU2",
-    #         "creator_name": "WING-TOOLS",
-    #         "created": dt,
-    #         "source_channel": i,
-    #         "info_text": chn["name"],
-    #         "scopes_content": " ++++++++++++++",
-    #         "scopes_main": "++++",
-    #         "scopes_send": "++++++++++++++++++++++++",
-    #         "target_fx": [0, 0],
-    #     }
-
-    #     # append channel data to preset
-    #     preset['ch_data'] = chn
-
-    #     file_name = f'{i.zfill(2)} - {chn["name"]}.chn'
-    #     file_path = os.path.join(dir, file_name)
-
-    #     # export the preset
-    #     with open(file_path, "w") as json_file:
-    #         json.dump(preset, json_file, indent=4)
-    #     print(f'Saved {file_name}')
-
-    export_presets(dir, chs, "chn")
-    export_presets(dir, auxes, "aux")
+    export_presets(dir, chs, "chn", io)
+    export_presets(dir, auxes, "aux", io)
     export_presets(dir, buses, "bus")
     export_presets(dir, mains, "main")
     export_presets(dir, mtxs, "mtx")
