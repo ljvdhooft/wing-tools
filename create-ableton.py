@@ -1,9 +1,7 @@
 # from ableton_set_builder import AbletonSetBuilder, ColorsDir
-from enum import Enum
-from WingSnap import WingSnap
 import json
 
-from ableton_set_builder import AbletonSetBuilder, ColorsDir
+from ableton_set_builder import AbletonSetBuilder
 
 colors = {
     1: "sapphire",
