@@ -1,5 +1,6 @@
 # from ableton_set_builder import AbletonSetBuilder, ColorsDir
 import json
+import argparse
 
 from ableton_set_builder import AbletonSetBuilder
 
@@ -18,8 +19,12 @@ colors = {
     12: "amethyst"
 }
 
-file = 'P.FOH 2024.12.snap'
-with open(file) as f:
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--input")
+parser.add_argument("-o", "--output")
+args = parser.parse_args()
+
+with open(args.input) as f:
     snap = json.load(f)
 
 tracks = []
@@ -53,3 +58,4 @@ builder = AbletonSetBuilder('templates/live-12.xml')
 for track in tracks:
     builder.create_audio_track(track['name'], track['color'], track['input'], track['input'], "in", 12)
 
+builder.build_als('output')
