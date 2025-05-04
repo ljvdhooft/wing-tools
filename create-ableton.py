@@ -25,6 +25,7 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input")
 parser.add_argument("-g", "--output-group", default='USB', choices=['USB', 'CRD', 'MOD', 'A', 'B', 'C'])
+parser.add_argument("-v", "--verbose", action="count", default=0)
 args = parser.parse_args()
 
 with open(args.input) as f:
@@ -57,6 +58,12 @@ for out in outs:
                 continue
             input = f"{int(out) - 1}/{out}"
     tracks.append(dict(input=input, name=src["name"], color=ableton_color_name))
+
+if args.verbose:
+    print(json.dumps(tracks, indent=2))
+
+if not tracks:
+    exit()
 
 builder = AbletonSetBuilder(f'{cwd}/templates/live-12.xml')
 
