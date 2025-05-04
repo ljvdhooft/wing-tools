@@ -49,3 +49,9 @@ for out in usb_outs:
                 continue
             input = f"{int(out) - 1}/{out}"
     tracks.append(dict(input=input, name=src["name"], color=ableton_color_name))
+
+builder = AbletonSetBuilder('templates/live-12.xml')
+
+for track in tracks:
+    builder.create_audio_track(track['name'], track['color'], track['input'], track['input'], "in", 12)
+
