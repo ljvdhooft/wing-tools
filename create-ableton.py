@@ -24,6 +24,8 @@ file = 'P.FOH 2024.12.snap'
 with open(file) as f:
     snap = json.load(f)
 
+tracks = []
+
 usb_outs = snap['ae_data']['io']['out']['USB']
 for out in usb_outs:
     dst_grp = usb_outs[out]["grp"]
@@ -35,14 +37,15 @@ for out in usb_outs:
     input = out
     src_color = int(src["col"])
     ableton_color_name = colors[src_color]
-    ableton_color_id = ColorsDir[ableton_color_name].value
     if src['mode'] == "ST":
+        if int(out) % 2:
+            continue
         prev = (int(out) - 1)
         prev_dst_grp = usb_outs[str(prev)]["grp"]
         if prev_dst_grp != "OFF":
             prev_dst_in = usb_outs[str(prev)]["in"]
             prev_src = snap["ae_data"]["io"]["in"][str(prev_dst_grp)][str(prev_dst_in)]
-            if src == prev_src:
+            if src != prev_src:
                 continue
-            input = f'{out}/{int(out) + 1}'
-    print(dict(input=input, name=src["name"], color=ableton_color_id))
+            input = f"{int(out) - 1}/{out}"
+    tracks.append(dict(input=input, name=src["name"], color=ableton_color_name))
