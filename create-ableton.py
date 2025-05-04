@@ -24,7 +24,6 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input")
-parser.add_argument("-o", "--output")
 args = parser.parse_args()
 
 with open(args.input) as f:
@@ -61,4 +60,6 @@ builder = AbletonSetBuilder(f'{cwd}/templates/live-12.xml')
 for track in tracks:
     builder.create_audio_track(track['name'], track['color'], track['input'], track['input'], "in", 12)
 
-builder.build_als('output')
+builder.build_als(f'/tmp/{args.input}.als')
+
+os.system(f"open '/Applications/Ableton Live 12 Suite.app/' '/tmp/{args.input}.als'")
