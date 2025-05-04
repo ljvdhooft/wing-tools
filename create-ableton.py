@@ -24,20 +24,23 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input")
+parser.add_argument("-g", "--output-group", default='USB', choices=['USB', 'CRD', 'MOD', 'A', 'B', 'C'])
 args = parser.parse_args()
 
 with open(args.input) as f:
     snap = json.load(f)
 
 tracks = []
-
-usb_outs = snap['ae_data']['io']['out']['USB']
-for out in usb_outs:
-    dst_grp = usb_outs[out]["grp"]
+output_group = args.output_group
+outs = snap["ae_data"]["io"]["out"][output_group]
+for out in outs:
+    dst_grp = outs[out]["grp"]
     if dst_grp == "OFF":
         continue
 
-    dst_in = usb_outs[out]["in"]
+    dst_in = outs[out]["in"]
+    if not str(dst_grp) in snap['ae_data']['io']['in']:
+        continue
     src = snap['ae_data']['io']['in'][str(dst_grp)][str(dst_in)]
     input = out
     src_color = int(src["col"])
@@ -46,9 +49,9 @@ for out in usb_outs:
         if int(out) % 2:
             continue
         prev = (int(out) - 1)
-        prev_dst_grp = usb_outs[str(prev)]["grp"]
+        prev_dst_grp = outs[str(prev)]["grp"]
         if prev_dst_grp != "OFF":
-            prev_dst_in = usb_outs[str(prev)]["in"]
+            prev_dst_in = outs[str(prev)]["in"]
             prev_src = snap["ae_data"]["io"]["in"][str(prev_dst_grp)][str(prev_dst_in)]
             if src != prev_src:
                 continue
