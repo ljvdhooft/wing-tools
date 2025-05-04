@@ -1,6 +1,7 @@
 # from ableton_set_builder import AbletonSetBuilder, ColorsDir
 import json
 import argparse
+import os
 
 from ableton_set_builder import AbletonSetBuilder
 
@@ -18,6 +19,8 @@ colors = {
     11: "flamingo",
     12: "amethyst"
 }
+
+cwd = os.path.dirname(os.path.abspath(__file__))
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input")
@@ -53,7 +56,7 @@ for out in usb_outs:
             input = f"{int(out) - 1}/{out}"
     tracks.append(dict(input=input, name=src["name"], color=ableton_color_name))
 
-builder = AbletonSetBuilder('templates/live-12.xml')
+builder = AbletonSetBuilder(f'{cwd}/templates/live-12.xml')
 
 for track in tracks:
     builder.create_audio_track(track['name'], track['color'], track['input'], track['input'], "in", 12)
